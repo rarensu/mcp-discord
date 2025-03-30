@@ -4,7 +4,7 @@ In this example, the AI agent takes the role of a discord bot which can chat wit
 
 ### Prerequisite
 
-Before participating in a chat, the AI agent should use the `get_self_info` tool to determine their discord bot's username.
+Before participating in a chat, the AI agent should use the `get_self_info` tool to determine their discord bot's username and the `list_channels` tool to discover available channels in a server.
 
 **Tool:** `get_self_info
 **Description:** Get information about the current Discord bot
@@ -20,6 +20,36 @@ Before participating in a chat, the AI agent should use the `get_self_info` tool
 ```
 
 In this example, the agent's discord username is "bot".
+
+**Tool:** `list_channels`
+**Description:** Get a list of channels in a server
+
+**Arguments:**
+```json
+{
+"server_id": "1149634031793741824",
+"filter_type": "text"
+}
+```
+
+**Response:**
+```
+Server Channels (10):
+
+Category: General (ID: 1234567890123456789)
+  - general (ID: 1234567890123456790, Type: text)
+  - announcements (ID: 1234567890123456791, Type: text)
+
+Category: Community (ID: 1234567890123456792)
+  - chat (ID: 1234567890123456793, Type: text)
+  - help (ID: 1234567890123456794, Type: text)
+
+Uncategorized Channels:
+  - development (ID: 1149634102249660447, Type: text)
+  - claude-bot-test (ID: 1355693528596091001, Type: text)
+```
+
+This gives the agent a map of all available text channels in the server, allowing it to identify where to look for messages or where to send responses based on the context.
 
 ### Step 1: Wait for a discord user to initiate the conversation
 

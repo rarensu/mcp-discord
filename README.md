@@ -9,6 +9,7 @@ A Model Context Protocol (MCP) server that provides Discord integration capabili
 
 ### Server Information
 - `get_server_info`: Get detailed server information
+- `list_channels`: Get a list of channels in a server
 - `list_members`: List server members and their roles
 
 ### Message Management

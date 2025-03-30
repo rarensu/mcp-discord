@@ -96,6 +96,25 @@ async def list_tools() -> List[Tool]:
             }
         ),
         Tool(
+            name="list_channels",
+            description="Get a list of channels in a server",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "server_id": {
+                        "type": "string",
+                        "description": "Discord server (guild) ID"
+                    },
+                    "filter_type": {
+                        "type": "string",
+                        "description": "Optional filter for channel type (text, voice, category, all)",
+                        "enum": ["text", "voice", "category", "all"]
+                    }
+                },
+                "required": ["server_id"]
+            }
+        ),
+        Tool(
             name="list_members",
             description="Get a list of members in a server",
             inputSchema={
@@ -516,6 +535,73 @@ async def call_tool(name: str, arguments: Any) -> List[TextContent]:
         return [TextContent(
             type="text",
             text=f"Server Information:\n" + "\n".join(f"{k}: {v}" for k, v in info.items())
+        )]
+        
+    elif name == "list_channels":
+        guild = await discord_client.fetch_guild(int(arguments["server_id"]))
+        channels = await guild.fetch_channels()
+        
+        # Filter channels based on type if specified
+        filter_type = arguments.get("filter_type", "all")
+        
+        filtered_channels = []
+        for channel in channels:
+            if filter_type == "all":
+                filtered_channels.append(channel)
+            elif filter_type == "text" and isinstance(channel, discord.TextChannel):
+                filtered_channels.append(channel)
+            elif filter_type == "voice" and isinstance(channel, discord.VoiceChannel):
+                filtered_channels.append(channel)
+            elif filter_type == "category" and isinstance(channel, discord.CategoryChannel):
+                filtered_channels.append(channel)
+        
+        # Organize channels by category
+        categories = {}
+        uncategorized = []
+        
+        for channel in filtered_channels:
+            if isinstance(channel, discord.CategoryChannel):
+                categories[channel.id] = {
+                    "name": channel.name,
+                    "id": str(channel.id),
+                    "channels": []
+                }
+        
+        for channel in filtered_channels:
+            if not isinstance(channel, discord.CategoryChannel):
+                channel_info = {
+                    "name": channel.name,
+                    "id": str(channel.id),
+                    "type": "text" if isinstance(channel, discord.TextChannel) else "voice" if isinstance(channel, discord.VoiceChannel) else "unknown"
+                }
+                
+                if channel.category_id and channel.category_id in categories:
+                    categories[channel.category_id]["channels"].append(channel_info)
+                else:
+                    uncategorized.append(channel_info)
+        
+        # Format the output
+        output = f"Server Channels ({len(filtered_channels)}):\n\n"
+        
+        # Add categories with their channels
+        for category_id, category_data in categories.items():
+            output += f"Category: {category_data['name']} (ID: {category_data['id']})\n"
+            if category_data["channels"]:
+                for channel in category_data["channels"]:
+                    output += f"  - {channel['name']} (ID: {channel['id']}, Type: {channel['type']})\n"
+            else:
+                output += "  (No channels in this category)\n"
+            output += "\n"
+        
+        # Add uncategorized channels
+        if uncategorized:
+            output += "Uncategorized Channels:\n"
+            for channel in uncategorized:
+                output += f"  - {channel['name']} (ID: {channel['id']}, Type: {channel['type']})\n"
+        
+        return [TextContent(
+            type="text",
+            text=output
         )]
 
     elif name == "list_members":
