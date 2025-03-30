@@ -6,7 +6,7 @@ In this example, the AI agent takes the role of a discord bot which can chat wit
 
 Before participating in a chat, the AI agent should use the `get_self_info` tool to determine their discord bot's username and the `list_channels` tool to discover available channels in a server.
 
-**Tool:** `get_self_info
+**Tool:** `get_self_info`
 **Description:** Get information about the current Discord bot
 
 **Response:**
@@ -82,7 +82,7 @@ An AI agent wants to use a tool on the discord MCP server:
 ```
 
 **Response:**
-```json
+```
 Retrieved 5 messages:
 user (2025-01-01T00:00:00.000000+00:00): a recent message.
 Reactions: No reactions
@@ -131,7 +131,7 @@ An AI agent wants to use a tool on the discord MCP server:
 
 **Arguments:**
 
-```
+```json
 {
 "channel_id": "1234567890123456789",
 "content": "The status of X is: Y."
